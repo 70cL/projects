@@ -1,11 +1,13 @@
-package com.example.Todoapp.repository;
+package com.example.Todoapp.data.repository;
 
-import com.example.Todoapp.entity.TodoInfo;
+import com.example.Todoapp.data.entity.TodoInfo;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -18,9 +20,10 @@ public class TodoInfoRepository implements ITodoInfoRepository{
 
     private static final String FIND_ALL_SQL = "select * from todos";
     private static final String FIND_BY_ID = "select * from todos where todo_id = :id";
+    private static final String FIND_BY_TITLE_LIKE = "select * from todos where title like ";
     private static final String DELETE_BY_ID = "delete from todos where todo_id = :id";
+    private static final String DELETE_ID_BETWEEN = "delete from todos where todo_id between :start and :end";
     private static final String COUNT_SQL = "select count(*) from todos";
-    private static final String DELETE_DATA_SQL = "delete from todos";
     private static final String DEADLINE_SQL = "select * from todos where completed = false order by expected_end_date limit :limit";
     private static final String FIND_BY_MONTH_BETWEEN = "select * from todos where extract(MONTH from start_date) between :start and :end";
     private static final String SAVE_SQL = "insert into  todos (username, title, description, insert_date, start_date, expected_end_date, completed)\n" +
@@ -71,6 +74,16 @@ public class TodoInfoRepository implements ITodoInfoRepository{
         m_namedParameterJdbcTemplate.update(DELETE_BY_ID, map);
 
     }
+    @Override
+    public void deleteIdBetween(int start, int end) {
+
+        Map<String, Integer> map = new HashMap<>();
+
+        map.put("start", start);
+        map.put("end", end);
+
+        m_namedParameterJdbcTemplate.update(DELETE_ID_BETWEEN, map);
+    }
 
     @Override
     public Iterable<TodoInfo> findByMonthBetween(int start, int end) {
@@ -117,6 +130,20 @@ public class TodoInfoRepository implements ITodoInfoRepository{
     }
 
     @Override
+    public Iterable<TodoInfo> findByTitleLike(String title) {
+
+        Map<String, String> map = new HashMap<>();
+
+        ArrayList<TodoInfo> todoInfoArrayList = new ArrayList<>();
+
+        map.put("letters", title);
+
+        m_namedParameterJdbcTemplate.query(FIND_BY_TITLE_LIKE, map, (ResultSet result) -> fillTodos(result, todoInfoArrayList));
+
+        return todoInfoArrayList;
+    }
+
+    @Override
     public <S extends TodoInfo> S save(S entity) {
 
         var keyHolder = new GeneratedKeyHolder();
@@ -126,7 +153,6 @@ public class TodoInfoRepository implements ITodoInfoRepository{
         entity.setId(keyHolder.getKey().intValue());
 
         return entity;
-
     }
 
     @Override
@@ -134,7 +160,11 @@ public class TodoInfoRepository implements ITodoInfoRepository{
 
         ArrayList<Integer> arrayList = new ArrayList<>();
 
-        m_namedParameterJdbcTemplate.query(COUNT_SQL, (ResultSet result) -> {arrayList.add(result.getInt(1));});
+        m_namedParameterJdbcTemplate.query(COUNT_SQL, (ResultSet result) ->
+        {
+            arrayList.add(result.getInt(1));
+        }
+        );
 
         return arrayList.get(0);
     }
@@ -150,19 +180,19 @@ public class TodoInfoRepository implements ITodoInfoRepository{
 
     @Override
     public Iterable save(Iterable entities) {
-        return null;
+        throw new UnsupportedOperationException();
     }
     @Override
     public void delete(TodoInfo entity) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Iterable findAllById(Iterable iterable) {
-        return null;
+        throw new UnsupportedOperationException();
     }
     @Override
     public boolean exitsById(Long aLong) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 }

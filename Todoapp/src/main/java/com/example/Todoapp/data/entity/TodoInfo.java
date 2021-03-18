@@ -1,6 +1,4 @@
-package com.example.Todoapp.entity;
-
-import org.springframework.stereotype.Component;
+package com.example.Todoapp.data.entity;
 
 import java.time.LocalDate;
 

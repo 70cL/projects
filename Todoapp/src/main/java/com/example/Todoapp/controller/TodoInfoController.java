@@ -1,73 +1,90 @@
 package com.example.Todoapp.controller;
 
-import com.example.Todoapp.entity.TodoInfo;
-import com.example.Todoapp.repository.TodoInfoRepository;
+import com.example.Todoapp.dto.TodoInfoDTO;
+import com.example.Todoapp.service.ITodoInfoService;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @RestController
 @RequestMapping("/api/todos")
 public class TodoInfoController {
-    TodoInfoRepository todoInfoRepository;
+    ITodoInfoService iTodoInfoService;
 
-    public TodoInfoController(TodoInfoRepository todoInfoRepository) {
-        this.todoInfoRepository = todoInfoRepository;
+    public TodoInfoController(ITodoInfoService iTodoInfoService) {
+        this.iTodoInfoService = iTodoInfoService;
     }
 
     @GetMapping("/all")
-    public Iterable<TodoInfo> getAllTodos()
+    public Iterable<TodoInfoDTO> getAllTodos()
     {
-        return todoInfoRepository.findAll();
+        return iTodoInfoService.findAllTodos();
     }
 
-    @PostMapping("/savearray")
-    public TodoInfo[] savearray (@RequestBody TodoInfo[] todoInfo)
+    @PostMapping("/saveArray")
+    public TodoInfoDTO[] saveArray (@RequestBody TodoInfoDTO[] todoInfoDTOS)
     {
-        Arrays.stream(todoInfo).forEach(todoInfoRepository::save);
+        Arrays.stream(todoInfoDTOS).forEach(iTodoInfoService::saveTodo);
 
-        return todoInfo;
+        return todoInfoDTOS;
+    }
+
+    @GetMapping("/titleLike") //query problem
+    public Iterable<TodoInfoDTO> titleLike(@RequestParam(value = "tit") String title)
+    {
+        return iTodoInfoService.findTodosByTitleLike(title);
     }
 
     @PostMapping("/save")
-    public TodoInfo save (@RequestBody TodoInfo todoInfo)
+    public TodoInfoDTO save (@RequestBody TodoInfoDTO todoInfoDTO)
     {
-        return todoInfoRepository.save(todoInfo);
+        return iTodoInfoService.saveTodo(todoInfoDTO);
     }
 
     @GetMapping("/id")
-    public TodoInfo findById (@RequestParam(value = "id", required = false, defaultValue = "1") String id)
+    public TodoInfoDTO findById (@RequestParam(value = "id", required = false, defaultValue = "1") String id)
     {
-        return todoInfoRepository.findById(Long.parseLong(id)).orElse(new TodoInfo());
+        return iTodoInfoService.findTodoById(Long.parseLong(id)).orElse(new TodoInfoDTO());
     }
 
     @GetMapping("/month/between")
-    public Iterable<TodoInfo> findByMonthBetween(@RequestParam(value = "start", required = false, defaultValue = "1") int start,
+    public Iterable<TodoInfoDTO> findByMonthBetween(@RequestParam(value = "start", required = false, defaultValue = "1") int start,
                                                  @RequestParam(value = "end", required = false, defaultValue = "12") int end)
     {
-        return todoInfoRepository.findByMonthBetween(start, end);
+        return iTodoInfoService.findTodosByMonthsBetween(start, end);
     }
 
     @GetMapping("/delete")
     public String delete(@RequestParam(value = "id") String id)
     {
-        todoInfoRepository.deleteById(Long.parseLong(id));
+        iTodoInfoService.deleteByTodoId(Long.parseLong(id));
 
         return id + ".row" + " deleted";
+    }
+
+    @GetMapping("/deletes")
+    public String deleteTodos(@RequestParam(value = "start") int start, @RequestParam(value = "end") int end)
+    {
+        iTodoInfoService.deleteByTodoIdBetween(start, end);
+
+        return "Todo's between " + start + " and " + end + " have been deleted";
     }
 
     @GetMapping("/count")
     public long count()
     {
-        return todoInfoRepository.count();
+        return iTodoInfoService.countTodos();
     }
 
-    @GetMapping("/deadline")
-    public Iterable<TodoInfo> deadLine(@RequestParam(value = "dl", required = false, defaultValue = "5") int limit)
+    @GetMapping("/urgent")
+    public Iterable<TodoInfoDTO> urgent(@RequestParam(value = "dl", required = false, defaultValue = "5") int limit)
     {
-        return todoInfoRepository.closestTodoDeadline(limit);
+        return StreamSupport.stream(iTodoInfoService.mostXUrgentTodos(limit).spliterator(), false).
+                filter(todoInfoDTO -> (todoInfoDTO.getExpectedEndDate().isAfter(LocalDate.now()))).limit(limit)
+                .collect(Collectors.toList());
     }
 
 }

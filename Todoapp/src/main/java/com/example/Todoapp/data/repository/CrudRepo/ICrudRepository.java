@@ -1,4 +1,4 @@
-package com.example.Todoapp.repository.CrudRepo;
+package com.example.Todoapp.data.repository.CrudRepo;
 
 import java.util.Optional;
 

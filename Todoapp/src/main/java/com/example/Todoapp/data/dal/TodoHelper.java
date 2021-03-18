@@ -1,8 +1,8 @@
-package com.example.Todoapp.dal;
+package com.example.Todoapp.data.dal;
 
-import com.example.Todoapp.entity.TodoInfo;
+import com.example.Todoapp.data.entity.TodoInfo;
 import com.example.Todoapp.exceptions.RepositoryException;
-import com.example.Todoapp.repository.ITodoInfoRepository;
+import com.example.Todoapp.data.repository.ITodoInfoRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -27,6 +27,17 @@ public class TodoHelper {
         }
     }
 
+    public Iterable<TodoInfo> findTodoByTitleLike(String title)
+    {
+        try {
+            return iTodoInfoRepository.findByTitleLike(title);
+        }
+        catch (Throwable ex)
+        {
+            throw new RepositoryException("findTodoByTitleLike", ex);
+        }
+    }
+
     public void deleteByTodoId(long id)
     {
         try {
@@ -35,6 +46,17 @@ public class TodoHelper {
         catch (Throwable ex)
         {
             throw new RepositoryException("TodoHelper.deleteByTodoId", ex);
+        }
+    }
+
+    public void deleteByTodoIdBetween(int start, int end)
+    {
+        try {
+            iTodoInfoRepository.deleteIdBetween(start, end);
+        }
+        catch (Throwable ex)
+        {
+            throw new RepositoryException("TodoHelper.deleteByTodoIdBetween", ex);
         }
     }
 
