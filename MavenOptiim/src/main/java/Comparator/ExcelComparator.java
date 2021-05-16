@@ -22,15 +22,6 @@ public class ExcelComparator {
     private List<Person> personList;
     private List<Person> personList2;
 
-    public static void main(String[] args) throws IOException {
-
-        ExcelComparator comparator = new ExcelComparator();
-
-        comparator.read();
-        comparator.write();
-
-    }
-
     public void read()
     {
         try (

@@ -4,15 +4,15 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class Person {
-    private String name = "";
-    private String surName = "";
-    private String birthDate = "";
-    private String birthPlace = "";
-    private String mail = "";
-    private String phone = "";
-    private String status = "";
-    private String isWorking = "";
-    private String university = "";
+    private String name;
+    private String surName;
+    private String birthDate;
+    private String birthPlace;
+    private String mail;
+    private String phone;
+    private String status;
+    private String isWorking;
+    private String university;
 
     public Person()
     {
